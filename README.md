@@ -285,6 +285,7 @@ python scripts/eval_retrieval.py --rebuild
 | 文档 | 说明 |
 |:-----|:-----|
 | [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) | 🚀 Docker、CI/CD、服务器部署、回滚与安全清单 |
+| [`docs/SECURITY.md`](docs/SECURITY.md) | 🔐 密钥/隐私处理、已做与未做的安全措施 |
 | [`plans/retrieval_eval.md`](plans/retrieval_eval.md) | 🔬 25 条查询的检索评测报告 |
 | [`plans/客户版方案_示例.html`](plans/客户版方案_示例.html) | 🖨️ 客户版 HTML 示例（可直接打印为 PDF） |
 | [`plans/retrieval_eval.json`](plans/retrieval_eval.json) | 📊 逐条查询的评测明细 |
