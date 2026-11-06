@@ -1,0 +1,25 @@
+{"id": "q01", "query": "漓江竹筏漂流多少钱一个人", "expected_any": ["320", "漓江"], "expected_sources": ["scenic_spots.jsonl", "itinerary_templates.jsonl"]}
+{"id": "q02", "query": "故宫周一开放吗", "expected_any": ["周一闭馆"], "expected_sources": ["itinerary_templates.jsonl"]}
+{"id": "q03", "query": "暑假带孩子出去玩要注意什么", "expected_any": ["防暑", "亲子"], "expected_sources": ["destination_notes.jsonl"]}
+{"id": "q04", "query": "去高原旅游身体要注意什么", "expected_any": ["高原"], "expected_sources": ["destination_notes.jsonl"]}
+{"id": "q05", "query": "北京五天研学行程怎么安排", "expected_any": ["八达岭"], "expected_sources": ["itinerary_templates.jsonl"]}
+{"id": "q06", "query": "三亚四天亲子游怎么玩", "expected_any": ["亚龙湾"], "expected_sources": ["itinerary_templates.jsonl"]}
+{"id": "q07", "query": "公司团建两天一夜去哪", "expected_any": ["拓展"], "expected_sources": ["itinerary_templates.jsonl"]}
+{"id": "q08", "query": "毕业旅行推荐路线", "expected_any": ["毕业"], "expected_sources": ["itinerary_templates.jsonl"]}
+{"id": "q09", "query": "带父母出去玩要注意什么", "expected_any": ["老人"], "expected_sources": ["destination_notes.jsonl"]}
+{"id": "q10", "query": "水上项目安全要注意什么", "expected_any": ["救生衣"], "expected_sources": ["safety_templates.jsonl"]}
+{"id": "q11", "query": "山里徒步要注意哪些安全", "expected_any": ["登山", "徒步"], "expected_sources": ["safety_templates.jsonl"]}
+{"id": "q12", "query": "西安兵马俑门票多少", "expected_any": ["兵马俑"], "expected_sources": ["scenic_spots.jsonl"]}
+{"id": "q13", "query": "成都大熊猫基地怎么玩", "expected_any": ["熊猫"], "expected_sources": ["scenic_spots.jsonl"]}
+{"id": "q14", "query": "上海迪士尼适合几岁孩子", "expected_any": ["迪士尼"], "expected_sources": ["scenic_spots.jsonl"]}
+{"id": "q15", "query": "九寨沟最佳旅游季节", "expected_any": ["九寨沟"], "expected_sources": ["scenic_spots.jsonl"]}
+{"id": "q16", "query": "丽江大理六天怎么安排", "expected_any": ["丽江", "大理"], "expected_sources": ["itinerary_templates.jsonl", "scenic_spots.jsonl"]}
+{"id": "q17", "query": "出境旅游需要准备什么证件", "expected_any": ["护照", "签证"], "expected_sources": ["destination_notes.jsonl"]}
+{"id": "q18", "query": "冬天去北方旅游要注意什么", "expected_any": ["保暖"], "expected_sources": ["destination_notes.jsonl"]}
+{"id": "q19", "query": "团队出行有人突发疾病怎么处理", "expected_any": ["120", "突发疾病"], "expected_sources": ["safety_templates.jsonl"]}
+{"id": "q20", "query": "研学旅行安全预案怎么写", "expected_any": ["应急预案"], "expected_sources": ["safety_templates.jsonl"]}
+{"id": "q21", "query": "腿脚不方便的长辈出行怎么安排", "expected_any": ["老人"], "expected_sources": ["destination_notes.jsonl"]}
+{"id": "q22", "query": "团队里有人突然晕倒怎么办", "expected_any": ["120", "突发疾病"], "expected_sources": ["safety_templates.jsonl"]}
+{"id": "q23", "query": "夏天带孩子出门怎么防晒", "expected_any": ["防暑", "防晒"], "expected_sources": ["destination_notes.jsonl"]}
+{"id": "q24", "query": "北方冬天要穿多厚", "expected_any": ["保暖"], "expected_sources": ["destination_notes.jsonl"]}
+{"id": "q25", "query": "坐竹筏需要穿救生衣吗", "expected_any": ["救生衣", "竹筏"], "expected_sources": ["safety_templates.jsonl", "scenic_spots.jsonl"]}

@@ -1,0 +1,64 @@
+# ============================================
+# AI旅行智能助手 — Git 忽略文件
+# ============================================
+
+# ---- 环境变量（包含 API KEY，严禁上传） ----
+.env
+
+# ---- Python 临时文件 ----
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# ---- IDE 配置 ----
+.vscode/
+.idea/
+
+# ---- 系统文件 ----
+.DS_Store
+Thumbs.db
+
+# ---- 日志 ----
+*.log
+
+# ---- Chroma 向量库持久化目录 ----
+chroma_db/
+
+# ---- 业务数据库（含客户隐私，严禁提交） ----
+biz_data.db
+chat_history.db
+*.db
+
+# ---- 导出文件与用户上传 ----
+exports/
+data/uploads/
+
+# ---- 本地凭据（GitHub Token 等，绝不提交） ----
+.secrets/
+
+# ---- 个人资料 / 面试准备，不纳入公开仓库 ----
+自用md/
+口述文档.md
+1独立环境搭建.md
+⭐6-24整理文件夹用处.md
+plans/排查.md
+plans/pro_end执行版.md
+plans/项目改造计划_B端行程方案系统.md
+plans/0环境学习防不兼容bug.md
+plans/项目复盘_面试版.md
+
+# ---- 历史数据 / 临时产物 ----
+0.2.2
+8.1.1
+easy.csv
+easy.jsonl
+Firstknowledge_attraction_Guilin.jsonl
+*.pdf
+.pytest_cache/
+.pytest_tmp/
+_sandbox_tmp/
+.npm-cache/
+.tools/

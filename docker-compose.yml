@@ -1,0 +1,140 @@
+# ============================================
+# AI旅行智能助手 — Docker Compose 生产部署
+# ============================================
+# 使用方法：
+#   1. 复制 .env.example 为 .env，填入 QWEN_API_KEY
+#   2. docker compose up -d
+#   3. 浏览器访问 http://localhost:8501
+#
+# 生产环境（HTTPS）：
+#   1. 准备 SSL 证书到 ./nginx/ssl/
+#   2. 修改 nginx/nginx.conf 中的 server_name
+#   3. docker compose --profile prod up -d
+# ============================================
+
+# ========== 命名卷（生产推荐，便于备份迁移） ==========
+volumes:
+  knowledge-data:    # 用户上传的知识库文件（/app/data/uploads）
+  biz-db:            # 业务数据库（SQLite 持久化，重新部署不丢数据）
+  vector-store:      # Chroma 向量数据库持久化
+  app-config:        # 日志输出目录
+  ssl-certs:         # SSL 证书（仅生产模式）
+
+services:
+  # ==========================================
+  # Streamlit 应用服务
+  # ==========================================
+  travel-assistant:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ${APP_IMAGE:-ai-travel-assistant:latest}
+    container_name: travel-itinerary-ai
+    restart: unless-stopped
+
+    # ---- 资源限制 ----
+    # 嵌入模型 (~1GB) + 重排序模型 (~2GB) + Python/Streamlit (~0.5GB)
+    # 单用户场景 4GB/2c 足够，多用户建议 8GB/4c
+    deploy:
+      resources:
+        limits:
+          memory: 4g
+          cpus: "2"
+        reservations:
+          memory: 2g
+          cpus: "1"
+
+    # ---- GPU 加速（可选） ----
+    # 宿主机需安装 nvidia-container-toolkit
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+    # ---- 环境变量 ----
+    env_file:
+      - .env
+    environment:
+      - STREAMLIT_SERVER_PORT=8501
+      - STREAMLIT_SERVER_ADDRESS=0.0.0.0
+      - STREAMLIT_SERVER_HEADER=true          # 允许反向代理透传
+      - STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
+      # 业务库放到独立持久化卷，避免重新部署丢数据
+      - BIZ_DB_PATH=/app/db/biz_data.db
+      # 上传文件与内置模板分离，避免挂载覆盖 data/business_templates
+      - UPLOAD_DIR=/app/data/uploads
+
+    # ---- 数据持久化 ----
+    volumes:
+      # 用户上传的知识库文件（仅挂载 uploads，不覆盖内置模板）
+      - knowledge-data:/app/data/uploads
+      # 业务数据库
+      - biz-db:/app/db
+      # 向量数据库
+      - vector-store:/app/chroma_db
+      # 日志输出（用于外部日志采集）
+      - app-config:/app/logs
+
+    # ---- 健康检查 ----
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+    # ---- 日志配置 ----
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    # 不直接暴露端口（由 Nginx 反向代理接入）
+    ports:
+      - "127.0.0.1:8501:8501"
+
+  # ==========================================
+  # Nginx 反向代理（生产模式）
+  # ==========================================
+  nginx:
+    profiles:
+      - prod
+    image: nginx:1.27-alpine
+    container_name: ai-travel-nginx
+    restart: unless-stopped
+    depends_on:
+      travel-assistant:
+        condition: service_healthy
+
+    ports:
+      - "80:80"
+      - "443:443"
+
+    volumes:
+      # Nginx 配置
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      # SSL 证书（需自行准备）
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+          cpus: "0.5"
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    # 健康检查
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 60s
+      timeout: 5s
+      retries: 3
