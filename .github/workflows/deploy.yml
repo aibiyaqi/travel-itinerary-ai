@@ -1,0 +1,58 @@
+name: Deploy
+
+# 默认不自动部署：在仓库 Variables 中设置 DEPLOY_ENABLED=true 后，
+# 打 v* 标签或手动触发才会执行。
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "GHCR 镜像 tag（默认 latest）"
+        required: false
+        default: latest
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy to server
+    if: vars.DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 20
+    steps:
+      - name: Resolve image tag
+        run: |
+          TAG="${{ github.event.inputs.image_tag || 'latest' }}"
+          if ! [[ "$TAG" =~ ^[A-Za-z0-9._-]+$ ]]; then
+            echo "非法 tag: $TAG" >&2
+            exit 1
+          fi
+          echo "IMAGE_TAG=$TAG" >> "$GITHUB_ENV"
+
+      - name: Deploy over SSH
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+        run: |
+          set -euo pipefail
+          IMAGE="ghcr.io/${{ github.repository }}:${IMAGE_TAG}"
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts
+
+          # 服务器拉取私有镜像需要 read:packages 的 PAT
+          printf '%s' "$GHCR_TOKEN" | ssh -o StrictHostKeyChecking=accept-new \
+            "$DEPLOY_USER@$DEPLOY_HOST" "docker login ghcr.io -u '${{ github.actor }}' --password-stdin"
+
+          ssh -o StrictHostKeyChecking=accept-new "$DEPLOY_USER@$DEPLOY_HOST" \
+            "set -e; cd '$DEPLOY_PATH'; APP_IMAGE='$IMAGE' docker compose pull travel-assistant; APP_IMAGE='$IMAGE' docker compose up -d --no-build travel-assistant; docker image prune -f"
+
+          ssh -o StrictHostKeyChecking=accept-new "$DEPLOY_USER@$DEPLOY_HOST" \
+            "curl -fsS http://127.0.0.1:8501/_stcore/health"

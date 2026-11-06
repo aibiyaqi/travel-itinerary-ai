@@ -1,0 +1,82 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test (Python 3.12)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      # 测试只校验配置加载，不会真实调用模型；用占位 Key 避免 config.py 启动校验失败
+      QWEN_API_KEY: sk-ci-placeholder
+      # 测试依赖 admin 用户 id=1 建立外键关系
+      ADMIN_USERNAME: admin
+      ADMIN_PASSWORD: ci-test-password-123
+      ANONYMIZED_TELEMETRY: "False"
+      HF_HUB_DISABLE_TELEMETRY: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Compile check
+        run: python -m compileall -q src scripts
+
+      - name: Secret scan
+        run: python scripts/check_secrets.py
+
+      - name: Run tests
+        run: python -m pytest tests -q
+
+  docker:
+    name: Build & push image
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:sha-${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
