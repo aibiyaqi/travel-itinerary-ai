@@ -1,4 +1,4 @@
-"""
+﻿"""
 数据库服务测试（B端版） — 业务表 CRUD 操作测试
 
 测试新的 db_service.py 中的核心业务函数：
@@ -64,7 +64,7 @@ def setup_test_db(monkeypatch):
 def sample_client():
     """注册一个测试客户并返回 client_id"""
     from src import db_service
-    return db_service.create_client(name="测试客户", phone="13800138000", email="test@example.com")
+    return db_service.create_client(name="测试客户", phone="00000000000", email="test@example.com")
 
 
 @pytest.fixture
@@ -213,7 +213,7 @@ class TestClientManagement:
     def test_create_client(self):
         """创建客户 → 返回正数 client_id"""
         from src import db_service
-        cid = db_service.create_client("新客户", "13900000000")
+        cid = db_service.create_client("新客户", "00000000001")
         assert isinstance(cid, int)
         assert cid > 0
 
@@ -223,7 +223,7 @@ class TestClientManagement:
         client = db_service.get_client(sample_client)
         assert client is not None
         assert client["name"] == "测试客户"
-        assert client["phone"] == "13800138000"
+        assert client["phone"] == "00000000000"
         assert client["email"] == "test@example.com"
 
     def test_get_client_nonexistent(self):
