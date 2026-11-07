@@ -42,6 +42,7 @@ docs/
 面试问题大全.md
 data/eval/
 .secrets/
+简历修订/
 .pytest_tmp/
 _sandbox_tmp/
 .npm-cache/
